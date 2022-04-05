@@ -26,8 +26,7 @@ from experiment_files import files
 from progress.bar import Bar
 
 experiment_time = 10
-delta_t = 0.0001
-total_seats = 20
+delta_t = 1e-5
 
 color_map = plt.cm.ScalarMappable(cmap=cm.tab10, norm=plt.Normalize(0, len(passengers)))
 
@@ -51,14 +50,14 @@ def air_velocity_field(pos):
     #u_y = stream_traces.iloc[(stream_traces['Points:1']-pos[1]).abs().argsort()[:1]]['U:1'].values[0]
     return [u_x, u_y]
 
-for file in files[:1]: 
+for file in files: 
     fig, ax = plt.subplots(figsize=(16,5))
     fig.set_dpi(400)
     ax.set_xlim([0, 24])
     ax.set_ylim([0, train_height])
     ax.set_aspect('equal', adjustable='box')
     
-    [x_train, y_train] = build_train_coordinates(total_seats)
+    [x_train, y_train] = build_train_coordinates(len(passengers))
     ax.plot(x_train,y_train, color='blue')
     collision_detection_initialised = collision_detection_init(x_train, y_train)
     
@@ -105,5 +104,5 @@ for file in files[:1]:
     stream_traces_downsampled = stream_traces[['Points:0', 'Points:1', 'U:0', 'U:1']].sample(n=1000)
     #ax.quiver(stream_traces_downsampled['Points:0'], stream_traces_downsampled['Points:1'], stream_traces_downsampled['U:0'], stream_traces_downsampled['U:1'], color='#adadad', zorder=0)
     ax.quiver(stream_traces['Points:0'], stream_traces['Points:1'], stream_traces['U:0'], stream_traces['U:1'], color='#ededed', zorder=0)
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    ax.legend(loc='upper left', bbox_to_anchor=(0, -0.5), ncol=5)
     plt.savefig('./output/'+file['name'] + '_' + str(delta_t) +'.png',  bbox_inches="tight")
