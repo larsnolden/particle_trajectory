@@ -26,41 +26,41 @@ diameter_change_due_to_evaporation = lambda dt, particle_diameter, pressure, v: 
 diameter_change_due_to_evaporation_updated = lambda dt, particle_diameter, pressure, v: 2*dt*(-1*density_mixture(particle_diameter, pressure)*diffusion_coefficient_water_in_air*sherwood(v, particle_diameter)/
                                                                       (2*particle_density*particle_diameter/2)*log((1-vapor_mass_frac_inf)/(1-vapor_mass_frac_r(particle_diameter, pressure)))) #41
 
-p_size = 10e-6
+p_size = 25e-6
 
-p_size_final = p_size + diameter_change_due_to_evaporation(1, p_size, p_train, 10) #this is too fast?
-
-
-#with evaporation sneezing, breathing, coughing diameter change over time
-evaporation_plots_v = [20, 10, 1]
-evaporation_plots_d = [1000e-6, 100e-6, 10e-6]
-
-total_time = 20
-dt = 0.001
-x_time = np.arange(0, total_time, dt)
-
-fig, ax = plt.subplots(figsize=(16,5))
-fig.set_dpi(200)
-ax.set_ylabel('diameter [μm]')
-ax.set_xlabel('t [s]')
-ax.set_yscale('log')
-ax.set_xscale('log')
-#ax.set_ylim([0, 10e2])
+p_size_final = p_size + diameter_change_due_to_evaporation(1, p_size, p_train, 0.3) #this is too fast?
 
 
+# #with evaporation sneezing, breathing, coughing diameter change over time
+# evaporation_plots_v = [20, 10, 1]
+# evaporation_plots_d = [1000e-6, 100e-6, 10e-6]
 
-for d in evaporation_plots_d:
-    for v in evaporation_plots_v:    
-        y_d = np.zeros(shape=(len(x_time)))
-        y_d[0] = d
-        for id, t in enumerate(x_time):
-            if(y_d[id] <= 0):
-                new_d = 0
-            else:
-                new_d = y_d[id] + diameter_change_due_to_evaporation_updated(dt, y_d[id], p_train, v)
-                if(id +2 <= len(x_time)):
-                    y_d[id+1] = new_d
+# total_time = 20
+# dt = 0.001
+# x_time = np.arange(0, total_time, dt)
+
+# fig, ax = plt.subplots(figsize=(16,5))
+# fig.set_dpi(200)
+# ax.set_ylabel('diameter [μm]')
+# ax.set_xlabel('t [s]')
+# ax.set_yscale('log')
+# ax.set_xscale('log')
+# #ax.set_ylim([0, 10e2])
+
+
+
+# for d in evaporation_plots_d:
+#     for v in evaporation_plots_v:    
+#         y_d = np.zeros(shape=(len(x_time)))
+#         y_d[0] = d
+#         for id, t in enumerate(x_time):
+#             if(y_d[id] <= 0):
+#                 new_d = 0
+#             else:
+#                 new_d = y_d[id] + diameter_change_due_to_evaporation_updated(dt, y_d[id], p_train, v)
+#                 if(id +2 <= len(x_time)):
+#                     y_d[id+1] = new_d
                
-        ax.plot(x_time, y_d/1e-6, label=f'd: {math.floor(d/1e-6)}μm; v={v}m/s') #diameter change
+#         ax.plot(x_time, y_d/1e-6, label=f'd: {math.floor(d/1e-6)}μm; v={v}m/s') #diameter change
 
-ax.legend()
+# ax.legend()

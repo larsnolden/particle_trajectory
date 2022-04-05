@@ -7,6 +7,7 @@ Created on Sat Apr  2 18:15:40 2022
 """
 
 import math
+from math import log
 from scipy import constants
 from constants import *
 
@@ -41,8 +42,11 @@ def F_drag(v, particle_diameter):
     # also add drag force = 0 if velocity is 0
     if particle_diameter <= 10e-6:
         return (3*math.pi*dynamic_viscosity_air_25C*v*particle_diameter)/(C_c(particle_diameter)*(2/particle_diameter))
-    else:
+    elif particle_diameter <= 10000e-6:
         return math.pi/8*C_d(Re(v, particle_diameter))*fluid_density*particle_diameter**2*v**2
+    else:
+        print('large droplet')
+        return 2*0.47/(fluid_density*v**2*4*math.pi*(particle_diameter/2)**2)
 
 F_g = lambda particle_mass: particle_mass*constants.g
 F_b = lambda particle_volume: fluid_density*particle_volume*constants.g

@@ -25,7 +25,7 @@ def euler_step(v, pos, particle_diameter, delta_t, air_velocity_field, air_press
     if(air_pressure_field):
         pressure = air_pressure_field(pos, speed)
         particle_diameter_new = particle_diameter + diameter_change_due_to_evaporation(delta_t, particle_diameter, pressure, speed)
-        print('v_air', v_air, 'v_actual', v_actual, 'speed', speed, 'v', v, 't', t, 'particle_diameter', particle_diameter, 'pressure', pressure, 'particle_diameter_new', particle_diameter_new)
+        #print('v_air', v_air, 'v_actual', v_actual, 'speed', speed, 'v', v, 't', t, 'particle_diameter', particle_diameter, 'pressure', pressure, 'particle_diameter_new', particle_diameter_new)
     else:
         particle_diameter_new = particle_diameter # no evaporation case
     
