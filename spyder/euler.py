@@ -16,14 +16,14 @@ def euler(xy_n, delta_t, funcs):
     return [x_n, y_n]
 
 
-def euler_step(v, pos, particle_diameter, delta_t, air_velocity_field, air_pressure_field, t):
+def euler_step(v, pos, particle_diameter, delta_t, air_velocity_field, air_pressure_field, t, stream_traces):
     # velocity field
-    v_air =  air_velocity_field(pos)
+    v_air =  air_velocity_field(pos, stream_traces)
     v_actual = np.add(v, v_air)
     speed = (v_actual[0]**2+v_actual[1]**2)**(1/2)
     
     if(air_pressure_field):
-        pressure = air_pressure_field(pos, speed)
+        pressure = air_pressure_field(pos, speed, stream_traces)
         particle_diameter_new = particle_diameter + diameter_change_due_to_evaporation(delta_t, particle_diameter, pressure, speed)
         #print('v_air', v_air, 'v_actual', v_actual, 'speed', speed, 'v', v, 't', t, 'particle_diameter', particle_diameter, 'pressure', pressure, 'particle_diameter_new', particle_diameter_new)
     else:

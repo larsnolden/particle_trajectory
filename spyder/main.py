@@ -17,6 +17,7 @@ from matplotlib.lines import Line2D
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import pandas as pd
 import random
+import os
 from multiprocessing import Pool
 
 from constants import *
@@ -33,7 +34,7 @@ color_map = plt.cm.ScalarMappable(cmap=cm.tab10, norm=plt.Normalize(0, len(passe
 
 debug_results = []
 
-def air_pressure_field(pos, speed):
+def air_pressure_field(pos, speed, stream_traces):
     # find the closest available position from the openFoam data
     # http://www.wolfdynamics.com/wiki/tut_cavity.pdf
     p_relative = stream_traces.iloc[(stream_traces['Points:0']-pos[0]+stream_traces['Points:1']-pos[1]).abs().argsort()[:1]]['p'].values[0]*fluid_density
@@ -41,7 +42,7 @@ def air_pressure_field(pos, speed):
     p = p_train + p_relative
     return p
 
-def air_velocity_field(pos):
+def air_velocity_field(pos, stream_traces):
     possible_x = stream_traces.iloc[(stream_traces['Points:0']-pos[0]).abs().argsort()[:100]]
     match = possible_x.iloc[(possible_x['Points:1']-pos[1]).abs().argsort()[:1]]
     u_x = match['U:0'].values[0]
@@ -55,7 +56,7 @@ def air_velocity_field(pos):
 n_trajectiories = len(files) * len(passengers) * len(passengers[0]['v']) * len(passengers[0]['d']) * experiment_time/delta_t
 bar = Bar('Processing', max=n_trajectiories, suffix='%(percent)d%%; %(eta_td)s hours remaining')
 
-for file in files: 
+def simulation(velocity_profile_file):
     fig, ax = plt.subplots(figsize=(16,5))
     fig.set_dpi(400)
     ax.set_xlim([0, 24])
@@ -67,8 +68,8 @@ for file in files:
     collision_detection_initialised = collision_detection_init(x_train, y_train)
     
     # import openFOAM velocity/pressure field
-    stream_traces = pd.read_csv(file['path'])
-    print(file['name'])
+    stream_traces = pd.read_csv(velocity_profile_file['path'])
+    print(velocity_profile_file['name'])
 
     for passenger_id, passenger in enumerate(passengers):
         active_passenger = passenger['type'] != 'inhale'
@@ -82,7 +83,7 @@ for file in files:
             for particle_diameter in passenger['d']:
                 for ejection_velocity in passenger['v']:
                         #res = particle_simulation(particle_diameter, passenger['v'], pos_init, experiment_time, delta_t, air_velocity_field, bar, air_pressure_field, collision_detection_initialised)
-                        res = particle_simulation(particle_diameter, ejection_velocity, pos_init, experiment_time, delta_t, air_velocity_field, bar, air_pressure_field, collision_detection_initialised)        
+                        res = particle_simulation(particle_diameter, ejection_velocity, pos_init, experiment_time, delta_t, air_velocity_field, bar, stream_traces, air_pressure_field, collision_detection_initialised)        
                         # extract axes from position list
                         pos_x = list(map(lambda xy: xy[0], res['pos']))
                         pos_y = list(map(lambda xy: xy[1], res['pos']))
@@ -110,3 +111,16 @@ for file in files:
     ax.quiver(stream_traces['Points:0'], stream_traces['Points:1'], stream_traces['U:0'], stream_traces['U:1'], color='#ededed', zorder=0)
     #ax.legend(loc='upper left', bbox_to_anchor=(0, -0.5), ncol=5)
     plt.savefig('./output/'+file['name'] + '_' + str(delta_t) +'.png',  bbox_inches="tight")
+
+
+if __name__ ==  '__main__':
+    try:
+        pool = Pool(8)
+        pool.map(simulation, files)
+    except Exception as e:
+        print(e)
+        pool.close()
+        pool.join()
+    finally: # To make sure processes are closed in the end, even if errors happen
+        pool.close()
+        pool.join()

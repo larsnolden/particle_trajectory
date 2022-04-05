@@ -10,7 +10,7 @@ import math
 from euler import euler_step
 from constants import minimum_virus_particle_size
 
-def particle_simulation(particle_diameter_init, v_init, pos_init, experiment_time, delta_t, air_velocity_field, bar, air_pressure_field=None, collision_detection=None):
+def particle_simulation(particle_diameter_init, v_init, pos_init, experiment_time, delta_t, air_velocity_field, bar, stream_traces=None, air_pressure_field=None, collision_detection=None):
     steps = np.arange(delta_t, experiment_time, delta_t)
     n_steps = round(experiment_time/delta_t)
     #print('experiment_time', experiment_time, 'delta_t', delta_t, 'steps', steps, 'n_steps', n_steps)
@@ -33,7 +33,7 @@ def particle_simulation(particle_diameter_init, v_init, pos_init, experiment_tim
         t = steps[id]
         # compute new values
         #print('particle_diameter[id]', particle_diameter[id])
-        new_values = euler_step(v[id], pos[id], particle_diameter[id], delta_t, air_velocity_field, air_pressure_field, t)
+        new_values = euler_step(v[id], pos[id], particle_diameter[id], delta_t, air_velocity_field, air_pressure_field, t, stream_traces)
         
         if(new_values['d'] <= 0):
             has_evaporated = True
