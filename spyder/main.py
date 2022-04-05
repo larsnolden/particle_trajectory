@@ -25,8 +25,8 @@ from simulation import particle_simulation
 from experiment_files import files
 from progress.bar import Bar
 
-experiment_time = 4
-delta_t = 0.001
+experiment_time = 10
+delta_t = 0.0001
 total_seats = 20
 
 color_map = plt.cm.ScalarMappable(cmap=cm.tab10, norm=plt.Normalize(0, len(passengers)))
@@ -42,9 +42,13 @@ def air_pressure_field(pos, speed):
     return p
 
 def air_velocity_field(pos):
+    possible_x = stream_traces.iloc[(stream_traces['Points:0']-pos[0]).abs().argsort()[:100]]
+    match = possible_x.iloc[(possible_x['Points:1']-pos[1]).abs().argsort()[:1]]
+    u_x = match['U:0'].values[0]
+    u_y = match['U:1'].values[0]
     # find the closest available position from the openFoam data
-    u_x = stream_traces.iloc[(stream_traces['Points:0']-pos[0]).abs().argsort()[:1]]['U:0'].values[0]
-    u_y = stream_traces.iloc[(stream_traces['Points:1']-pos[1]).abs().argsort()[:1]]['U:1'].values[0]
+    #u_x = stream_traces.iloc[(stream_traces['Points:0']-pos[0]).abs().argsort()[:1]]['U:0'].values[0]
+    #u_y = stream_traces.iloc[(stream_traces['Points:1']-pos[1]).abs().argsort()[:1]]['U:1'].values[0]
     return [u_x, u_y]
 
 for file in files[:1]: 
@@ -62,7 +66,7 @@ for file in files[:1]:
     stream_traces = pd.read_csv(file['path'])
     print(file['name'])
 
-    for passenger_id, passenger in enumerate(passengers[8:]):
+    for passenger_id, passenger in enumerate(passengers):
         #for particle_diameter in passenger['d']:
         active_passenger = passenger['type'] != 'inhale'
         print('person: ', passenger['person'])
@@ -75,7 +79,7 @@ for file in files[:1]:
             bar = Bar('Processing', max=experiment_time/delta_t)
             particle_diameter = passenger['d'][0]
             #res = particle_simulation(particle_diameter, passenger['v'], pos_init, experiment_time, delta_t, air_velocity_field, bar, air_pressure_field, collision_detection_initialised)
-            res = particle_simulation(particle_diameter, passenger['v'], pos_init, experiment_time, delta_t, air_velocity_field, bar, None, collision_detection_initialised)        
+            res = particle_simulation(particle_diameter, passenger['v'], pos_init, experiment_time, delta_t, air_velocity_field, bar, air_pressure_field, collision_detection_initialised)        
             # extract axes from position list
             pos_x = list(map(lambda xy: xy[0], res['pos']))
             pos_y = list(map(lambda xy: xy[1], res['pos']))
@@ -91,6 +95,8 @@ for file in files[:1]:
                 'passenger': passenger_id+1
                 })
             # plot arrow at start and end of trajecotory
+            if(res['collided']):
+                print('particle collided')
             for id in [0, len(v_x) - 2]:
                 # make arrow length extremly small (/100000)
                 plt.arrow(pos_x[id], pos_y[id], v_x[id]/100000, v_y[id]/100000, head_width=0.1, color=color_map.to_rgba(passenger_id), length_includes_head=True)

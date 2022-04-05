@@ -30,6 +30,9 @@ def build_train_coordinates(number_of_seats):
     return [x, y]
 
 def collision_detection(train, pos):
+    if(pos[0] <= 0 or pos[0] >= max(train['x_train'])):
+        #train left/right wall
+        return True
     #y = train.iloc[(train['x_train']-20).abs().argsort()[:1]]['y_train'].values[0]
     #neighbours = train.iloc[(train['x_train']-pos[0]).abs().argsort()[:2]]
     #y = neighbours['y_train'].max()
@@ -40,9 +43,6 @@ def collision_detection(train, pos):
         return True
     elif(pos[1] >= train_height or pos[1] <= 0):
         # train ceilling/floor
-        return True
-    elif(pos[0] <= 0 or pos[0] >= max(train['x_train'])):
-        #train left/right wall
         return True
     return False
 

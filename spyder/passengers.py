@@ -81,7 +81,7 @@ passengers = [
         'person': 15,
         'type': 'cough',
         'd': [10e-6],
-        'v': [-1.4, 0]
+        'v': [-1.2, 0.2]
     },
     {
         'person': 16,

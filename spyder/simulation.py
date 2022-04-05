@@ -42,7 +42,6 @@ def particle_simulation(particle_diameter_init, v_init, pos_init, experiment_tim
         if(collision_detection):
             has_colided=collision_detection(new_values['pos'])
             if(has_colided):    
-                print('particle collided')
                 # particle evaporated fully => break iteration early
                 # do not return the empty initialized zeroes
                 return {
@@ -50,7 +49,8 @@ def particle_simulation(particle_diameter_init, v_init, pos_init, experiment_tim
                     'pos': pos[0:id],
                     'd': particle_diameter[0:id],
                     't': steps[0:id],
-                    'a': steps[0:id]
+                    'a': steps[0:id],
+                    'collided': True
                 }
 
         # add new values
