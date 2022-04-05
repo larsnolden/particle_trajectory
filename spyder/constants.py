@@ -7,7 +7,7 @@ Created on Sat Apr  2 18:12:24 2022
 """
 
 # train
-exhalation_height = 1.2
+exhalation_height = 1
 train_height = 2
 
 # general
